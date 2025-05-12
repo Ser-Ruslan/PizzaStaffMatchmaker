@@ -109,6 +109,18 @@ class VacancyForm(forms.ModelForm):
             'responsibilities': forms.Textarea(attrs={'rows': 4}),
             'conditions': forms.Textarea(attrs={'rows': 4}),
         }
+        labels = {
+            'title': _('Название'),
+            'position_type': _('Тип должности'),
+            'restaurants': _('Рестораны'),
+            'description': _('Описание'),
+            'requirements': _('Требования'),
+            'responsibilities': _('Обязанности'),
+            'conditions': _('Условия'),
+            'salary_min': _('Минимальная зарплата'),
+            'salary_max': _('Максимальная зарплата'),
+            'is_active': _('Активна'),
+        }
 
 # Application form
 class ApplicationForm(forms.ModelForm):
@@ -117,6 +129,10 @@ class ApplicationForm(forms.ModelForm):
         fields = ['resume', 'cover_letter']
         widgets = {
             'cover_letter': forms.Textarea(attrs={'rows': 4}),
+        }
+        labels = {
+            'resume': _('Резюме'),
+            'cover_letter': _('Сопроводительное письмо'),
         }
         
     def __init__(self, *args, **kwargs):
@@ -134,6 +150,9 @@ class ApplicationStatusForm(forms.ModelForm):
     class Meta:
         model = Application
         fields = ['status']
+        labels = {
+            'status': _('Статус'),
+        }
 
 # Application comment form
 class ApplicationCommentForm(forms.ModelForm):
@@ -142,6 +161,9 @@ class ApplicationCommentForm(forms.ModelForm):
         fields = ['content']
         widgets = {
             'content': forms.Textarea(attrs={'rows': 3}),
+        }
+        labels = {
+            'content': _('Комментарий'),
         }
 
 # Interview form
@@ -152,6 +174,15 @@ class InterviewForm(forms.ModelForm):
         widgets = {
             'date_time': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'notes': forms.Textarea(attrs={'rows': 3}),
+        }
+        labels = {
+            'interviewer': _('Интервьюер'),
+            'restaurant': _('Ресторан'),
+            'date_time': _('Дата и время'),
+            'location': _('Место проведения'),
+            'is_online': _('Онлайн интервью'),
+            'meeting_link': _('Ссылка на встречу'),
+            'notes': _('Примечания'),
         }
         
     def __init__(self, *args, **kwargs):
