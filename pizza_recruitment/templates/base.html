@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}PizzaJobs - Careers in Pizza Restaurant Chain{% endblock %}</title>
+    <title>{% block title %}PizzaJobs - Карьера в сети пиццерий{% endblock %}</title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -29,28 +29,28 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'home' %}">Home</a>
+                        <a class="nav-link" href="{% url 'home' %}">Главная</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'vacancy_list' %}">Vacancies</a>
+                        <a class="nav-link" href="{% url 'vacancy_list' %}">Вакансии</a>
                     </li>
                     
                     {% if user.is_authenticated %}
                         {% if user.profile.role == 'HR_MANAGER' %}
                             <li class="nav-item">
-                                <a class="nav-link" href="{% url 'hr_dashboard' %}">HR Dashboard</a>
+                                <a class="nav-link" href="{% url 'hr_dashboard' %}">HR Панель</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{% url 'manage_vacancies' %}">Manage Vacancies</a>
+                                <a class="nav-link" href="{% url 'manage_vacancies' %}">Управление вакансиями</a>
                             </li>
                         {% elif user.profile.role == 'RESTAURANT_MANAGER' %}
                             <li class="nav-item">
-                                <a class="nav-link" href="{% url 'manager_dashboard' %}">Manager Dashboard</a>
+                                <a class="nav-link" href="{% url 'manager_dashboard' %}">Панель менеджера</a>
                             </li>
                         {% endif %}
                         
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'application_list' %}">Applications</a>
+                            <a class="nav-link" href="{% url 'application_list' %}">Заявки</a>
                         </li>
                     {% endif %}
                 </ul>
@@ -74,9 +74,9 @@
                                         </a>
                                     {% endfor %}
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-center" href="{% url 'notifications' %}">View all</a>
+                                    <a class="dropdown-item text-center" href="{% url 'notifications' %}">Смотреть все</a>
                                 {% else %}
-                                    <span class="dropdown-item">No notifications</span>
+                                    <span class="dropdown-item">Нет уведомлений</span>
                                 {% endif %}
                             </div>
                         </li>
@@ -86,17 +86,17 @@
                                 <i class="fas fa-user"></i> {{ user.username }}
                             </a>
                             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                <a class="dropdown-item" href="{% url 'view_profile' %}">My Profile</a>
+                                <a class="dropdown-item" href="{% url 'view_profile' %}">Мой профиль</a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+                                <a class="dropdown-item" href="{% url 'logout' %}">Выйти</a>
                             </div>
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'login' %}">Login</a>
+                            <a class="nav-link" href="{% url 'login' %}">Вход</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'register' %}">Register</a>
+                            <a class="nav-link" href="{% url 'register' %}">Регистрация</a>
                         </li>
                     {% endif %}
                 </ul>
@@ -144,17 +144,17 @@
                     </ul>
                 </div>
                 <div class="col-md-4">
-                    <h5>Contact Us</h5>
+                    <h5>Контакты</h5>
                     <address>
-                        <i class="fas fa-map-marker-alt text-danger me-2"></i> 123 Pizza Street<br>
-                        <i class="fas fa-phone text-danger me-2"></i> (123) 456-7890<br>
-                        <i class="fas fa-envelope text-danger me-2"></i> careers@pizzajobs.com
+                        <i class="fas fa-map-marker-alt text-danger me-2"></i> ул. Пиццерная, 123<br>
+                        <i class="fas fa-phone text-danger me-2"></i> +7 (123) 456-78-90<br>
+                        <i class="fas fa-envelope text-danger me-2"></i> careers@pizzajobs.ru
                     </address>
                 </div>
             </div>
             <hr>
             <div class="text-center">
-                <p>&copy; 2023 PizzaJobs. All rights reserved.</p>
+                <p>&copy; 2025 PizzaJobs. Все права защищены.</p>
             </div>
         </div>
     </footer>

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}PizzaJobs - Join Our Pizza Restaurant Chain Team{% endblock %}
+{% block title %}PizzaJobs - Присоединяйтесь к команде сети пиццерий{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -8,12 +8,12 @@
     <section class="py-5 text-center">
         <div class="row py-lg-5">
             <div class="col-lg-8 col-md-10 mx-auto">
-                <h1 class="fw-bold">Join Our Pizza Family</h1>
-                <p class="lead text-muted">Discover exciting career opportunities in our growing pizza restaurant chain. We're looking for passionate individuals who love to create amazing experiences for our customers.</p>
+                <h1 class="fw-bold">Присоединяйтесь к нашей пицца-семье</h1>
+                <p class="lead text-muted">Откройте для себя захватывающие карьерные возможности в нашей растущей сети пиццерий. Мы ищем увлеченных людей, которые любят создавать потрясающие впечатления для наших клиентов.</p>
                 <div class="mt-4">
-                    <a href="{% url 'vacancy_list' %}" class="btn btn-danger btn-lg me-2">View Vacancies</a>
+                    <a href="{% url 'vacancy_list' %}" class="btn btn-danger btn-lg me-2">Посмотреть вакансии</a>
                     {% if not user.is_authenticated %}
-                        <a href="{% url 'register' %}" class="btn btn-outline-secondary btn-lg">Create Account</a>
+                        <a href="{% url 'register' %}" class="btn btn-outline-secondary btn-lg">Создать аккаунт</a>
                     {% endif %}
                 </div>
             </div>
@@ -23,14 +23,14 @@
     <!-- Why Join Us Section -->
     <section class="py-5 bg-light rounded">
         <div class="container">
-            <h2 class="text-center mb-5">Why Join Our Team?</h2>
+            <h2 class="text-center mb-5">Почему стоит присоединиться к нам?</h2>
             <div class="row g-4">
                 <div class="col-md-4">
                     <div class="card h-100 border-0 shadow-sm">
                         <div class="card-body text-center">
                             <i class="fas fa-pizza-slice fa-3x text-danger mb-3"></i>
-                            <h4 class="card-title">Passion for Food</h4>
-                            <p class="card-text">Join a team that's passionate about creating the best pizza experience for our customers.</p>
+                            <h4 class="card-title">Страсть к еде</h4>
+                            <p class="card-text">Присоединяйтесь к команде, которая увлечена созданием лучшего опыта пиццы для наших клиентов.</p>
                         </div>
                     </div>
                 </div>
@@ -38,8 +38,8 @@
                     <div class="card h-100 border-0 shadow-sm">
                         <div class="card-body text-center">
                             <i class="fas fa-users fa-3x text-danger mb-3"></i>
-                            <h4 class="card-title">Great Team Culture</h4>
-                            <p class="card-text">Be part of a supportive, fun, and dynamic work environment where your ideas matter.</p>
+                            <h4 class="card-title">Отличная команда</h4>
+                            <p class="card-text">Станьте частью поддерживающей, веселой и динамичной рабочей среды, где ваши идеи имеют значение.</p>
                         </div>
                     </div>
                 </div>
@@ -47,8 +47,8 @@
                     <div class="card h-100 border-0 shadow-sm">
                         <div class="card-body text-center">
                             <i class="fas fa-chart-line fa-3x text-danger mb-3"></i>
-                            <h4 class="card-title">Growth Opportunities</h4>
-                            <p class="card-text">Develop your skills and advance your career with our training and promotion opportunities.</p>
+                            <h4 class="card-title">Возможности роста</h4>
+                            <p class="card-text">Развивайте свои навыки и продвигайте свою карьеру с нашими возможностями обучения и продвижения.</p>
                         </div>
                     </div>
                 </div>
@@ -59,7 +59,7 @@
     <!-- Featured Positions Section -->
     <section class="py-5">
         <div class="container">
-            <h2 class="text-center mb-5">Featured Positions</h2>
+            <h2 class="text-center mb-5">Актуальные вакансии</h2>
             
             {% if recent_vacancies %}
                 <div class="row g-4">
@@ -75,24 +75,24 @@
                                             {% if vacancy.restaurants.count == 1 %}
                                                 {{ vacancy.restaurants.first.city }}
                                             {% else %}
-                                                Multiple Locations
+                                                Несколько локаций
                                             {% endif %}
                                         </span>
                                     </p>
                                 </div>
                                 <div class="card-footer bg-white">
-                                    <a href="{% url 'vacancy_detail' vacancy.id %}" class="btn btn-sm btn-outline-danger">View Details</a>
+                                    <a href="{% url 'vacancy_detail' vacancy.id %}" class="btn btn-sm btn-outline-danger">Подробнее</a>
                                 </div>
                             </div>
                         </div>
                     {% endfor %}
                 </div>
                 <div class="text-center mt-4">
-                    <a href="{% url 'vacancy_list' %}" class="btn btn-outline-dark">View All Positions</a>
+                    <a href="{% url 'vacancy_list' %}" class="btn btn-outline-dark">Посмотреть все вакансии</a>
                 </div>
             {% else %}
                 <div class="alert alert-info text-center">
-                    No vacancies available at the moment. Please check back later.
+                    На данный момент вакансии не доступны. Пожалуйста, проверьте позже.
                 </div>
             {% endif %}
         </div>
