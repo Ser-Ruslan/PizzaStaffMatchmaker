@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.validators import FileExtensionValidator
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 
 from .models import (
     UserProfile, Resume, Vacancy, Application, 
@@ -11,13 +12,18 @@ from .models import (
 
 # User registration form
 class UserRegisterForm(UserCreationForm):
-    email = forms.EmailField(required=True)
-    first_name = forms.CharField(required=True)
-    last_name = forms.CharField(required=True)
+    email = forms.EmailField(label=_('Email'), required=True)
+    first_name = forms.CharField(label=_('Имя'), required=True)
+    last_name = forms.CharField(label=_('Фамилия'), required=True)
     
     class Meta:
         model = User
         fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2']
+        labels = {
+            'username': _('Логин'),
+            'password1': _('Пароль'),
+            'password2': _('Подтверждение пароля'),
+        }
         
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -40,6 +46,15 @@ class UserProfileForm(forms.ModelForm):
             'experience': forms.Textarea(attrs={'rows': 4}),
             'education': forms.Textarea(attrs={'rows': 4}),
         }
+        labels = {
+            'phone': _('Телефон'),
+            'city': _('Город'),
+            'photo': _('Фотография'),
+            'about': _('О себе'),
+            'desired_position': _('Желаемая должность'),
+            'experience': _('Опыт работы'),
+            'education': _('Образование'),
+        }
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -54,6 +69,10 @@ class ResumeUploadForm(forms.ModelForm):
     class Meta:
         model = Resume
         fields = ['title', 'file']
+        labels = {
+            'title': _('Название'),
+            'file': _('Файл резюме'),
+        }
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -66,12 +85,12 @@ class ResumeUploadForm(forms.ModelForm):
         if file:
             # Check file size
             if file.size > settings.MAX_RESUME_SIZE:
-                raise forms.ValidationError("File size cannot exceed 5MB.")
+                raise forms.ValidationError("Размер файла не может превышать 5МБ.")
             
             # Check file type
             content_type = file.content_type
             if content_type not in settings.ALLOWED_RESUME_TYPES:
-                raise forms.ValidationError("Only PDF and Word documents are allowed.")
+                raise forms.ValidationError("Разрешены только PDF и Word документы.")
         
         return file
 
