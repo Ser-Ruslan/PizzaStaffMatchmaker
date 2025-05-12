@@ -592,3 +592,12 @@ def notifications(request):
         'unread_count': notifications.filter(read=False).count(),
     }
     return render(request, 'notifications/list.html', context)
+
+# Logout view
+@require_http_methods(["GET", "POST"])
+def logout_view(request):
+    if request.method == 'POST':
+        logout(request)
+        messages.success(request, 'Вы успешно вышли из системы')
+        return redirect('home')
+    return render(request, 'registration/logout.html')
