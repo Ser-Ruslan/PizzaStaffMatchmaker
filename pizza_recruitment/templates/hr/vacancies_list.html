@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Vacancies - PizzaJobs{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-clipboard-list me-2 text-danger"></i>Manage Vacancies</h1>
+        <div>
+            <a href="{% url 'create_vacancy' %}" class="btn btn-danger">
+                <i class="fas fa-plus-circle me-2"></i>Create New Vacancy
+            </a>
+        </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-light">
+            <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Filter Vacancies</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="">All Statuses</option>
+                        <option value="active" {% if selected_status == 'active' %}selected{% endif %}>Active</option>
+                        <option value="inactive" {% if selected_status == 'inactive' %}selected{% endif %}>Inactive</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="position_type" class="form-label">Position Type</label>
+                    <select class="form-select" id="position_type" name="position_type">
+                        <option value="">All Positions</option>
+                        {% for position_type in position_types %}
+                            <option value="{{ position_type.id }}" {% if selected_position_type == position_type.id|stringformat:"i" %}selected{% endif %}>{{ position_type.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                    <a href="{% url 'manage_vacancies' %}" class="btn btn-secondary">Clear Filters</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Vacancies Table -->
+    <div class="card shadow">
+        <div class="card-body">
+            {% if page_obj %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Position Type</th>
+                                <th>Restaurants</th>
+                                <th>Created</th>
+                                <th>Status</th>
+                                <th>Applications</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for vacancy in page_obj %}
+                                <tr>
+                                    <td>{{ vacancy.title }}</td>
+                                    <td>{{ vacancy.position_type.title }}</td>
+                                    <td>
+                                        {% if vacancy.restaurants.count == 1 %}
+                                            {{ vacancy.restaurants.first.name }}
+                                        {% else %}
+                                            {{ vacancy.restaurants.count }} restaurants
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ vacancy.created_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        <span class="badge {% if vacancy.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                                            {% if vacancy.is_active %}Active{% else %}Inactive{% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'application_list' %}?vacancy={{ vacancy.id }}" class="text-decoration-none">
+                                            {{ vacancy.applications.count }}
+                                            <i class="fas fa-users text-primary"></i>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{% url 'edit_vacancy' vacancy.id %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'vacancy_detail' vacancy.id %}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <form action="{% url 'toggle_vacancy_status' vacancy.id %}" method="post" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-outline-{% if vacancy.is_active %}warning{% else %}success{% endif %}">
+                                                    <i class="fas fa-{% if vacancy.is_active %}pause{% else %}play{% endif %}"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                {% if page_obj.paginator.num_pages > 1 %}
+                    <nav class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1{% if selected_status %}&status={{ selected_status }}{% endif %}{% if selected_position_type %}&position_type={{ selected_position_type }}{% endif %}">First</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if selected_position_type %}&position_type={{ selected_position_type }}{% endif %}">Previous</a>
+                                </li>
+                            {% endif %}
+                            
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if selected_position_type %}&position_type={{ selected_position_type }}{% endif %}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if selected_position_type %}&position_type={{ selected_position_type }}{% endif %}">Next</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if selected_position_type %}&position_type={{ selected_position_type }}{% endif %}">Last</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>No vacancies found matching your criteria.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Quick Stats -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Vacancy Quick Stats</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h3 class="text-success">{{ active_vacancies }}</h3>
+                            <p>Active Vacancies</p>
+                        </div>
+                        <div class="col-6">
+                            <h3 class="text-secondary">{{ total_vacancies|subtract:active_vacancies }}</h3>
+                            <p>Inactive Vacancies</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Need Help?</h5>
+                </div>
+                <div class="card-body">
+                    <p>Need to add a new position type or restaurant? Contact the system administrator or visit the admin panel.</p>
+                    <a href="/admin/" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-wrench me-1"></i>Admin Panel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

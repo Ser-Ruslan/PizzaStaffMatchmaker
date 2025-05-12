@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Edit Profile - PizzaJobs{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-3">
+            <!-- Sidebar Navigation -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">My Account</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'view_profile' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-user me-2"></i>View Profile
+                    </a>
+                    <a href="{% url 'edit_profile' %}" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-edit me-2"></i>Edit Profile
+                    </a>
+                    <a href="{% url 'application_list' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-clipboard-list me-2"></i>My Applications
+                    </a>
+                    {% if user.profile.role == 'CANDIDATE' %}
+                        <a href="{% url 'upload_resume' %}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-file-upload me-2"></i>Upload Resume
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-9">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h2 class="card-title h4 mb-0">Edit Profile</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Username</label>
+                                    <input type="text" class="form-control" value="{{ user.username }}" readonly>
+                                    <div class="form-text text-muted">Username cannot be changed</div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" value="{{ user.email }}" readonly>
+                                    <div class="form-text text-muted">To change email, please contact admin</div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Full Name</label>
+                                    <input type="text" class="form-control" value="{{ user.get_full_name }}" readonly>
+                                    <div class="form-text text-muted">To change name, please contact admin</div>
+                                </div>
+                                
+                                {{ form.phone|as_crispy_field }}
+                                {{ form.city|as_crispy_field }}
+                            </div>
+                            
+                            <div class="col-md-6">
+                                {% if user.profile.role == 'CANDIDATE' %}
+                                    {{ form.desired_position|as_crispy_field }}
+                                    {{ form.experience|as_crispy_field }}
+                                    {{ form.education|as_crispy_field }}
+                                {% endif %}
+                                
+                                {{ form.photo|as_crispy_field }}
+                                {{ form.about|as_crispy_field }}
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-danger">Save Changes</button>
+                            <a href="{% url 'view_profile' %}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

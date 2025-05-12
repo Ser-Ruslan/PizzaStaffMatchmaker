@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+
+{% block title %}PizzaJobs - Join Our Pizza Restaurant Chain Team{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <section class="py-5 text-center">
+        <div class="row py-lg-5">
+            <div class="col-lg-8 col-md-10 mx-auto">
+                <h1 class="fw-bold">Join Our Pizza Family</h1>
+                <p class="lead text-muted">Discover exciting career opportunities in our growing pizza restaurant chain. We're looking for passionate individuals who love to create amazing experiences for our customers.</p>
+                <div class="mt-4">
+                    <a href="{% url 'vacancy_list' %}" class="btn btn-danger btn-lg me-2">View Vacancies</a>
+                    {% if not user.is_authenticated %}
+                        <a href="{% url 'register' %}" class="btn btn-outline-secondary btn-lg">Create Account</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Why Join Us Section -->
+    <section class="py-5 bg-light rounded">
+        <div class="container">
+            <h2 class="text-center mb-5">Why Join Our Team?</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="fas fa-pizza-slice fa-3x text-danger mb-3"></i>
+                            <h4 class="card-title">Passion for Food</h4>
+                            <p class="card-text">Join a team that's passionate about creating the best pizza experience for our customers.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="fas fa-users fa-3x text-danger mb-3"></i>
+                            <h4 class="card-title">Great Team Culture</h4>
+                            <p class="card-text">Be part of a supportive, fun, and dynamic work environment where your ideas matter.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="fas fa-chart-line fa-3x text-danger mb-3"></i>
+                            <h4 class="card-title">Growth Opportunities</h4>
+                            <p class="card-text">Develop your skills and advance your career with our training and promotion opportunities.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Featured Positions Section -->
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">Featured Positions</h2>
+            
+            {% if recent_vacancies %}
+                <div class="row g-4">
+                    {% for vacancy in recent_vacancies %}
+                        <div class="col-md-4">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ vacancy.title }}</h5>
+                                    <h6 class="card-subtitle mb-2 text-muted">{{ vacancy.position_type.title }}</h6>
+                                    <p class="card-text">{{ vacancy.description|truncatewords:20 }}</p>
+                                    <p>
+                                        <span class="badge bg-secondary">
+                                            {% if vacancy.restaurants.count == 1 %}
+                                                {{ vacancy.restaurants.first.city }}
+                                            {% else %}
+                                                Multiple Locations
+                                            {% endif %}
+                                        </span>
+                                    </p>
+                                </div>
+                                <div class="card-footer bg-white">
+                                    <a href="{% url 'vacancy_detail' vacancy.id %}" class="btn btn-sm btn-outline-danger">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="text-center mt-4">
+                    <a href="{% url 'vacancy_list' %}" class="btn btn-outline-dark">View All Positions</a>
+                </div>
+            {% else %}
+                <div class="alert alert-info text-center">
+                    No vacancies available at the moment. Please check back later.
+                </div>
+            {% endif %}
+        </div>
+    </section>
+    
+    <!-- Team Section -->
+    <section class="py-5 bg-light rounded">
+        <div class="container">
+            <h2 class="text-center mb-5">Meet Our Team</h2>
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card mb-3 border-0 shadow-sm">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                <img src="https://pixabay.com/get/g2a614d3b735eb2e6177a92eb13c75a744913d7c79e48efd5b4c6ffd399494ed1874a75a74a64116e6c39e2a6df40dc5168086a7987ff82324bc801720f09ef6f_1280.jpg" class="img-fluid rounded-start" alt="Pizza Chef">
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">Pizza Chefs</h5>
+                                    <p class="card-text">Our talented chefs combine traditional techniques with innovative approaches to create the perfect pizza every time.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card mb-3 border-0 shadow-sm">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                <img src="https://pixabay.com/get/g477a49574e1af4a33fc64245a844f866bb67ff607062ac67a657481dbff2ace8d47d831db1fd044576b11781c26c96e7fb4f4d825207c863de13c84228a5a8e7_1280.jpg" class="img-fluid rounded-start" alt="Restaurant Staff">
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">Service Team</h5>
+                                    <p class="card-text">Our friendly and professional service team ensures every customer enjoys an exceptional dining experience.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-lg-6">
+                    <div class="card mb-3 border-0 shadow-sm">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                <img src="https://pixabay.com/get/g9bc0a12f3834fa8341960a8da3833218f3c728eb6d6eae8fd334c5fe2dd7a03b29276aa31202626aa58d33c8369ac9660d2130eedf1ef8495c18ddfccb3b6569_1280.jpg" class="img-fluid rounded-start" alt="Restaurant Manager">
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">Management Team</h5>
+                                    <p class="card-text">Our experienced managers lead by example, fostering a positive work environment and driving business success.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card mb-3 border-0 shadow-sm">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                <img src="https://pixabay.com/get/g041d86508b633c0a69de2d18123b2a1ed71208845a43bcc26bdbec09901a8a83f21aee4fea24a40e8385cecf6060d6aad236df6bb22181c2d4e857e575ee863f_1280.jpg" class="img-fluid rounded-start" alt="Delivery Team">
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">Delivery Team</h5>
+                                    <p class="card-text">Our reliable delivery team ensures our pizzas reach customers quickly and in perfect condition.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Application Process Section -->
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">Our Hiring Process</h2>
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="row">
+                        <div class="col-md-3 text-center">
+                            <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 100px; height: 100px;">
+                                <i class="fas fa-user-plus fa-3x"></i>
+                            </div>
+                            <h5>1. Apply Online</h5>
+                            <p class="small">Create an account and submit your application for your desired position.</p>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 100px; height: 100px;">
+                                <i class="fas fa-file-alt fa-3x"></i>
+                            </div>
+                            <h5>2. Resume Review</h5>
+                            <p class="small">Our HR team will review your application and resume.</p>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 100px; height: 100px;">
+                                <i class="fas fa-comments fa-3x"></i>
+                            </div>
+                            <h5>3. Interview</h5>
+                            <p class="small">Selected candidates will be invited for an interview with our team.</p>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 100px; height: 100px;">
+                                <i class="fas fa-handshake fa-3x"></i>
+                            </div>
+                            <h5>4. Welcome Aboard</h5>
+                            <p class="small">Successful candidates will receive an offer to join our pizza family!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Statistics Section -->
+    <section class="py-5 bg-danger text-white">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h2 class="display-4 fw-bold">{{ restaurant_count }}</h2>
+                    <p class="lead">Restaurants</p>
+                </div>
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h2 class="display-4 fw-bold">{{ vacancy_count }}</h2>
+                    <p class="lead">Open Positions</p>
+                </div>
+                <div class="col-md-4">
+                    <h2 class="display-4 fw-bold">{{ position_types|length }}</h2>
+                    <p class="lead">Job Categories</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- CTA Section -->
+    <section class="py-5 text-center">
+        <div class="container">
+            <h2>Ready to Join Our Team?</h2>
+            <p class="lead">Explore our current openings and find the perfect position for you.</p>
+            <a href="{% url 'vacancy_list' %}" class="btn btn-lg btn-danger mt-3">Browse Vacancies</a>
+        </div>
+    </section>
+</div>
+{% endblock %}

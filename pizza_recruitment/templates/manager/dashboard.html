@@ -1,0 +1,249 @@
+{% extends 'base.html' %}
+
+{% block title %}Restaurant Manager Dashboard - PizzaJobs{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-store me-2 text-danger"></i>Restaurant Manager Dashboard</h1>
+    </div>
+    
+    <!-- Managed Restaurants Section -->
+    <div class="card shadow mb-4">
+        <div class="card-header bg-white">
+            <h2 class="card-title h5 mb-0">Your Restaurants</h2>
+        </div>
+        <div class="card-body">
+            {% if managed_restaurants %}
+                <div class="row">
+                    {% for restaurant in managed_restaurants %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ restaurant.name }}</h5>
+                                    <p class="card-text text-muted">{{ restaurant.address }}, {{ restaurant.city }}</p>
+                                    <p class="card-text">
+                                        <strong>Open Vacancies:</strong> {{ restaurant.vacancies.filter.count }}
+                                    </p>
+                                </div>
+                                <div class="card-footer bg-white">
+                                    <a href="{% url 'application_list' %}" class="btn btn-sm btn-outline-danger">
+                                        View Applications
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>You're not currently managing any restaurants. Please contact HR or admin.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Recent Applications -->
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h3 class="card-title h5 mb-0">Recent Applications</h3>
+                    <a href="{% url 'application_list' %}" class="btn btn-sm btn-outline-secondary">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if recent_applications %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Candidate</th>
+                                        <th>Position</th>
+                                        <th>Applied On</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for application in recent_applications %}
+                                        <tr>
+                                            <td>{{ application.user.get_full_name }}</td>
+                                            <td>{{ application.vacancy.title }}</td>
+                                            <td>{{ application.applied_at|date:"M d, Y" }}</td>
+                                            <td>
+                                                <span class="badge {% if application.status == 'NEW' %}bg-primary{% elif application.status == 'REVIEWING' %}bg-info{% elif application.status == 'INTERVIEW_SCHEDULED' %}bg-warning{% elif application.status == 'ACCEPTED' %}bg-success{% elif application.status == 'REJECTED' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                                    {{ application.get_status_display }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a href="{% url 'application_detail' application.id %}" class="btn btn-sm btn-outline-secondary">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>No recent applications to display.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Upcoming Interviews -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <h3 class="card-title h5 mb-0">Upcoming Interviews</h3>
+                </div>
+                <div class="card-body">
+                    {% if upcoming_interviews %}
+                        <div class="list-group">
+                            {% for interview in upcoming_interviews %}
+                                <div class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ interview.application.user.get_full_name }}</h6>
+                                        <small>{{ interview.date_time|date:"M d, Y" }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ interview.application.vacancy.title }}</p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>{{ interview.date_time|date:"g:i A" }}
+                                        {% if interview.is_online %}
+                                            <span class="badge bg-info">Online</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">In-person</span>
+                                        {% endif %}
+                                    </small>
+                                    <div class="mt-2">
+                                        <a href="{% url 'application_detail' interview.application.id %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>No upcoming interviews scheduled.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Application Statistics -->
+            <div class="card shadow mt-3">
+                <div class="card-header bg-white">
+                    <h3 class="card-title h5 mb-0">Application Statistics</h3>
+                </div>
+                <div class="card-body">
+                    {% if applications_by_status %}
+                        <canvas id="applicationStatusChart"></canvas>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>No application data to display.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="card shadow mb-4">
+        <div class="card-header bg-white">
+            <h3 class="card-title h5 mb-0">Quick Actions</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 mb-3 mb-md-0">
+                    <div class="d-grid">
+                        <a href="{% url 'application_list' %}?status=NEW" class="btn btn-outline-primary">
+                            <i class="fas fa-clipboard-check me-2"></i>Review New Applications
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3 mb-md-0">
+                    <div class="d-grid">
+                        <a href="{% url 'application_list' %}?status=INTERVIEW_SCHEDULED" class="btn btn-outline-warning">
+                            <i class="fas fa-calendar-alt me-2"></i>View Scheduled Interviews
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3 mb-md-0">
+                    <div class="d-grid">
+                        <a href="{% url 'vacancy_list' %}" class="btn btn-outline-success">
+                            <i class="fas fa-list me-2"></i>View Active Vacancies
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="d-grid">
+                        <a href="{% url 'notifications' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-bell me-2"></i>Check Notifications
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js for data visualization -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if applications_by_status %}
+            const statusCtx = document.getElementById('applicationStatusChart').getContext('2d');
+            const statusLabels = [
+                {% for item in applications_by_status %}
+                    "{{ item.status }}",
+                {% endfor %}
+            ];
+            
+            const statusData = [
+                {% for item in applications_by_status %}
+                    {{ item.count }},
+                {% endfor %}
+            ];
+            
+            const statusColors = [
+                'rgba(13, 110, 253, 0.7)',  // Primary (NEW)
+                'rgba(13, 202, 240, 0.7)',  // Info (REVIEWING)
+                'rgba(255, 193, 7, 0.7)',   // Warning (INTERVIEW)
+                'rgba(25, 135, 84, 0.7)',   // Success (ACCEPTED)
+                'rgba(220, 53, 69, 0.7)',   // Danger (REJECTED)
+                'rgba(108, 117, 125, 0.7)'  // Secondary (OTHER)
+            ];
+            
+            new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: statusLabels,
+                    datasets: [{
+                        data: statusData,
+                        backgroundColor: statusColors,
+                        borderColor: statusColors.map(color => color.replace('0.7', '1')),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                boxWidth: 15
+                            }
+                        }
+                    }
+                }
+            });
+        {% endif %}
+    });
+</script>
+{% endblock %}

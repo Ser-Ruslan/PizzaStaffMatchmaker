@@ -1,0 +1,352 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Application Details - PizzaJobs{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'application_list' %}">Applications</a></li>
+            <li class="breadcrumb-item active">Application Details</li>
+        </ol>
+    </nav>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Application Details -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h2 class="h4 mb-0">Application for {{ application.vacancy.title }}</h2>
+                        <span class="badge {% if application.status == 'NEW' %}bg-primary{% elif application.status == 'REVIEWING' %}bg-info{% elif application.status == 'INTERVIEW_SCHEDULED' %}bg-warning{% elif application.status == 'ACCEPTED' %}bg-success{% elif application.status == 'REJECTED' %}bg-danger{% else %}bg-secondary{% endif %} fs-6">
+                            {{ application.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5>Candidate Information</h5>
+                            <p><strong>Name:</strong> {{ application.user.get_full_name }}</p>
+                            <p><strong>Email:</strong> {{ application.user.email }}</p>
+                            <p><strong>Phone:</strong> {{ application.user.profile.phone|default:"Not provided" }}</p>
+                            <p><strong>City:</strong> {{ application.user.profile.city|default:"Not provided" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Application Details</h5>
+                            <p><strong>Position:</strong> {{ application.vacancy.title }}</p>
+                            <p><strong>Position Type:</strong> {{ application.vacancy.position_type.title }}</p>
+                            <p><strong>Applied On:</strong> {{ application.applied_at|date:"F j, Y, g:i a" }}</p>
+                            <p><strong>Last Updated:</strong> {{ application.updated_at|date:"F j, Y, g:i a" }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if application.resume %}
+                        <div class="mb-4">
+                            <h5>Resume</h5>
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-file-alt fa-2x text-danger me-3"></i>
+                                <div>
+                                    <p class="mb-1">{{ application.resume.title }}</p>
+                                    <small class="text-muted">Uploaded on {{ application.resume.uploaded_at|date:"F j, Y" }}</small>
+                                </div>
+                                <a href="{{ application.resume.file.url }}" class="btn btn-sm btn-outline-primary ms-auto" target="_blank">
+                                    <i class="fas fa-download me-1"></i>Download
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if application.cover_letter %}
+                        <div class="mb-4">
+                            <h5>Cover Letter</h5>
+                            <div class="card">
+                                <div class="card-body bg-light">
+                                    {{ application.cover_letter|linebreaks }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if user.profile.role != 'CANDIDATE' and status_form %}
+                        <div class="mt-4">
+                            <h5>Update Application Status</h5>
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="update_status" value="1">
+                                <div class="row align-items-end">
+                                    <div class="col-md-8">
+                                        {{ status_form|crispy }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <button type="submit" class="btn btn-primary">Update Status</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Comments Section -->
+            {% if user.profile.role != 'CANDIDATE' %}
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-white">
+                        <h3 class="h5 mb-0">Internal Comments</h3>
+                    </div>
+                    <div class="card-body">
+                        {% if comments %}
+                            <div class="comments-list">
+                                {% for comment in comments %}
+                                    <div class="comment mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
+                                        <div class="d-flex justify-content-between">
+                                            <h6>{{ comment.author.get_full_name }}</h6>
+                                            <small class="text-muted">{{ comment.created_at|date:"F j, Y, g:i a" }}</small>
+                                        </div>
+                                        <p class="mb-0">{{ comment.content|linebreaks }}</p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted">No comments yet.</p>
+                        {% endif %}
+                        
+                        {% if comment_form %}
+                            <form method="post" class="mt-4">
+                                {% csrf_token %}
+                                <input type="hidden" name="add_comment" value="1">
+                                {{ comment_form|crispy }}
+                                <button type="submit" class="btn btn-primary">Add Comment</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Interviews Section -->
+            {% if interviews %}
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-white">
+                        <h3 class="h5 mb-0">Interviews</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Date & Time</th>
+                                        <th>Location</th>
+                                        <th>Interviewer</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for interview in interviews %}
+                                        <tr>
+                                            <td>{{ interview.date_time|date:"F j, Y, g:i a" }}</td>
+                                            <td>
+                                                {% if interview.is_online %}
+                                                    <span class="badge bg-info">Online</span>
+                                                    {% if interview.meeting_link %}
+                                                        <a href="{{ interview.meeting_link }}" target="_blank" class="ms-2">
+                                                            <i class="fas fa-video"></i> Join Meeting
+                                                        </a>
+                                                    {% endif %}
+                                                {% else %}
+                                                    {{ interview.location }}
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if interview.interviewer %}
+                                                    {{ interview.interviewer.get_full_name }}
+                                                {% else %}
+                                                    Not assigned
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge {% if interview.completed %}bg-success{% else %}bg-warning{% endif %}">
+                                                    {% if interview.completed %}Completed{% else %}Scheduled{% endif %}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Schedule Interview Section -->
+            {% if user.profile.role == 'HR_MANAGER' and interview_form %}
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-white">
+                        <h3 class="h5 mb-0">Schedule Interview</h3>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="schedule_interview" value="1">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{ interview_form.interviewer|as_crispy_field }}
+                                    {{ interview_form.restaurant|as_crispy_field }}
+                                    {{ interview_form.date_time|as_crispy_field }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ interview_form.location|as_crispy_field }}
+                                    {{ interview_form.is_online|as_crispy_field }}
+                                    {{ interview_form.meeting_link|as_crispy_field }}
+                                    {{ interview_form.notes|as_crispy_field }}
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Schedule Interview</button>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Candidate Profile Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-white">
+                    <h3 class="h5 mb-0">Candidate Profile</h3>
+                </div>
+                <div class="card-body text-center">
+                    {% if application.user.profile.photo %}
+                        <img src="{{ application.user.profile.photo.url }}" alt="Profile Photo" class="rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
+                    {% else %}
+                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 120px; height: 120px;">
+                            <i class="fas fa-user fa-4x text-secondary"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <h4>{{ application.user.get_full_name }}</h4>
+                    <p class="text-muted">{{ application.user.profile.desired_position|default:"No position specified" }}</p>
+                    
+                    {% if application.user.profile.about %}
+                        <div class="text-start mt-4">
+                            <h6>About</h6>
+                            <p>{{ application.user.profile.about|linebreaks }}</p>
+                        </div>
+                    {% endif %}
+                    
+                    {% if application.user.profile.experience %}
+                        <div class="text-start mt-4">
+                            <h6>Experience</h6>
+                            <p>{{ application.user.profile.experience|linebreaks }}</p>
+                        </div>
+                    {% endif %}
+                    
+                    {% if application.user.profile.education %}
+                        <div class="text-start mt-4">
+                            <h6>Education</h6>
+                            <p>{{ application.user.profile.education|linebreaks }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Vacancy Information Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-white">
+                    <h3 class="h5 mb-0">Vacancy Information</h3>
+                </div>
+                <div class="card-body">
+                    <h5>{{ application.vacancy.title }}</h5>
+                    <p class="text-muted">{{ application.vacancy.position_type.title }}</p>
+                    
+                    <div class="mb-3">
+                        <h6>Restaurants</h6>
+                        <ul class="list-group list-group-flush">
+                            {% for restaurant in application.vacancy.restaurants.all %}
+                                <li class="list-group-item px-0">
+                                    {{ restaurant.name }} - {{ restaurant.city }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6>Salary Range</h6>
+                        <p>
+                            {% if application.vacancy.salary_min and application.vacancy.salary_max %}
+                                ${{ application.vacancy.salary_min }} - ${{ application.vacancy.salary_max }}
+                            {% elif application.vacancy.salary_min %}
+                                From ${{ application.vacancy.salary_min }}
+                            {% elif application.vacancy.salary_max %}
+                                Up to ${{ application.vacancy.salary_max }}
+                            {% else %}
+                                Not specified
+                            {% endif %}
+                        </p>
+                    </div>
+                    
+                    <a href="{% url 'vacancy_detail' application.vacancy.id %}" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-external-link-alt me-1"></i>View Vacancy Details
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Actions Card -->
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <h3 class="h5 mb-0">Actions</h3>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'application_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Back to Applications
+                        </a>
+                        
+                        {% if user.profile.role != 'CANDIDATE' %}
+                            {% if application.status == 'NEW' %}
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="update_status" value="1">
+                                    <input type="hidden" name="status" value="REVIEWING">
+                                    <button type="submit" class="btn btn-outline-info w-100">
+                                        <i class="fas fa-search me-1"></i>Mark as Reviewing
+                                    </button>
+                                </form>
+                            {% elif application.status == 'REVIEWING' %}
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="update_status" value="1">
+                                    <input type="hidden" name="status" value="INTERVIEW_SCHEDULED">
+                                    <button type="submit" class="btn btn-outline-warning w-100">
+                                        <i class="fas fa-calendar-alt me-1"></i>Schedule Interview
+                                    </button>
+                                </form>
+                            {% endif %}
+                            
+                            {% if application.status != 'ACCEPTED' and application.status != 'REJECTED' %}
+                                <div class="btn-group w-100" role="group">
+                                    <form method="post" class="w-50">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="update_status" value="1">
+                                        <input type="hidden" name="status" value="ACCEPTED">
+                                        <button type="submit" class="btn btn-outline-success w-100">
+                                            <i class="fas fa-check me-1"></i>Accept
+                                        </button>
+                                    </form>
+                                    <form method="post" class="w-50">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="update_status" value="1">
+                                        <input type="hidden" name="status" value="REJECTED">
+                                        <button type="submit" class="btn btn-outline-danger w-100">
+                                            <i class="fas fa-times me-1"></i>Reject
+                                        </button>
+                                    </form>
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Resume - PizzaJobs{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h2 class="card-title h4 mb-0">Confirm Resume Deletion</h2>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Warning:</strong> You are about to delete your resume <strong>"{{ resume.title }}"</strong>. This action cannot be undone.
+                    </div>
+                    
+                    <p>If you delete this resume:</p>
+                    <ul>
+                        <li>It will no longer be available for use in applications</li>
+                        <li>Existing applications using this resume will still maintain a reference to it</li>
+                    </ul>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash-alt me-2"></i>Delete Resume
+                            </button>
+                            <a href="{% url 'view_profile' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

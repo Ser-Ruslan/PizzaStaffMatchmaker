@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Upload Resume - PizzaJobs{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-3">
+            <!-- Sidebar Navigation -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">My Account</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'view_profile' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-user me-2"></i>View Profile
+                    </a>
+                    <a href="{% url 'edit_profile' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-edit me-2"></i>Edit Profile
+                    </a>
+                    <a href="{% url 'application_list' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-clipboard-list me-2"></i>My Applications
+                    </a>
+                    <a href="{% url 'upload_resume' %}" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-file-upload me-2"></i>Upload Resume
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-9">
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <h2 class="card-title h4 mb-0">Upload Resume</h2>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Supported formats:</strong> PDF (.pdf), Microsoft Word (.doc, .docx) <br>
+                        <strong>Maximum file size:</strong> 5MB
+                    </div>
+                    
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            {{ form.title|as_crispy_field }}
+                            <small class="text-muted">Give your resume a descriptive name to help you identify it later.</small>
+                        </div>
+                        
+                        <div class="mb-4">
+                            {{ form.file|as_crispy_field }}
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-cloud-upload-alt me-2"></i>Upload Resume
+                            </button>
+                            <a href="{% url 'view_profile' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Profile
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Resume Tips</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-check-circle text-success me-2"></i>Resume Best Practices</h6>
+                            <ul>
+                                <li>Keep your resume to 1-2 pages</li>
+                                <li>Use clear, concise language</li>
+                                <li>Highlight relevant experience and skills</li>
+                                <li>Include quantifiable achievements when possible</li>
+                                <li>Ensure your contact information is current</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-exclamation-circle text-danger me-2"></i>Things to Avoid</h6>
+                            <ul>
+                                <li>Typos and grammatical errors</li>
+                                <li>Using a generic template without customization</li>
+                                <li>Including irrelevant personal information</li>
+                                <li>Listing job duties without accomplishments</li>
+                                <li>Using a complicated or hard-to-read format</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
