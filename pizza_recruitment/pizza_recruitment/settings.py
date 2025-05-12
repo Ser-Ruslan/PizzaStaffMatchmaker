@@ -125,3 +125,6 @@ LOGIN_URL = '/login/'
 ALLOWED_RESUME_TYPES = ['application/pdf', 'application/msword', 
                         'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
 MAX_RESUME_SIZE = 5 * 1024 * 1024  # 5MB
+
+# CSRF Settings
+CSRF_TRUSTED_ORIGINS = ['https://*.replit.app', 'https://*.replit.dev', 'https://*.repl.co']
