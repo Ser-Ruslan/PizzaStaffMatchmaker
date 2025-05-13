@@ -1,17 +1,17 @@
 {% extends 'base.html' %}
 
-{% block title %}Restaurant Manager Dashboard - PizzaJobs{% endblock %}
+{% block title %}Панель менеджера ресторана - PizzaJobs{% endblock %}
 
 {% block content %}
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1><i class="fas fa-store me-2 text-danger"></i>Restaurant Manager Dashboard</h1>
+        <h1><i class="fas fa-store me-2 text-danger"></i>Панель менеджера ресторана</h1>
     </div>
     
-    <!-- Managed Restaurants Section -->
+    <!-- Раздел управляемых ресторанов -->
     <div class="card shadow mb-4">
         <div class="card-header bg-white">
-            <h2 class="card-title h5 mb-0">Your Restaurants</h2>
+            <h2 class="card-title h5 mb-0">Ваши рестораны</h2>
         </div>
         <div class="card-body">
             {% if managed_restaurants %}
@@ -23,12 +23,12 @@
                                     <h5 class="card-title">{{ restaurant.name }}</h5>
                                     <p class="card-text text-muted">{{ restaurant.address }}, {{ restaurant.city }}</p>
                                     <p class="card-text">
-                                        <strong>Open Vacancies:</strong> {{ restaurant.vacancies.filter.count }}
+                                        <strong>Открытые вакансии:</strong> {{ restaurant.vacancies.filter.count }}
                                     </p>
                                 </div>
                                 <div class="card-footer bg-white">
                                     <a href="{% url 'application_list' %}" class="btn btn-sm btn-outline-danger">
-                                        View Applications
+                                        Просмотр откликов
                                     </a>
                                 </div>
                             </div>
@@ -37,19 +37,19 @@
                 </div>
             {% else %}
                 <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i>You're not currently managing any restaurants. Please contact HR or admin.
+                    <i class="fas fa-info-circle me-2"></i>Вы пока не управляете ни одним рестораном. Пожалуйста, свяжитесь с HR или администратором.
                 </div>
             {% endif %}
         </div>
     </div>
     
     <div class="row">
-        <!-- Recent Applications -->
+        <!-- Последние отклики -->
         <div class="col-lg-8 mb-4">
             <div class="card shadow">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h3 class="card-title h5 mb-0">Recent Applications</h3>
-                    <a href="{% url 'application_list' %}" class="btn btn-sm btn-outline-secondary">View All</a>
+                    <h3 class="card-title h5 mb-0">Недавние отклики</h3>
+                    <a href="{% url 'application_list' %}" class="btn btn-sm btn-outline-secondary">Смотреть все</a>
                 </div>
                 <div class="card-body">
                     {% if recent_applications %}
@@ -57,11 +57,11 @@
                             <table class="table table-hover">
                                 <thead>
                                     <tr>
-                                        <th>Candidate</th>
-                                        <th>Position</th>
-                                        <th>Applied On</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
+                                        <th>Кандидат</th>
+                                        <th>Должность</th>
+                                        <th>Дата отклика</th>
+                                        <th>Статус</th>
+                                        <th>Действия</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -69,7 +69,7 @@
                                         <tr>
                                             <td>{{ application.user.get_full_name }}</td>
                                             <td>{{ application.vacancy.title }}</td>
-                                            <td>{{ application.applied_at|date:"M d, Y" }}</td>
+                                            <td>{{ application.applied_at|date:"d M, Y" }}</td>
                                             <td>
                                                 <span class="badge {% if application.status == 'NEW' %}bg-primary{% elif application.status == 'REVIEWING' %}bg-info{% elif application.status == 'INTERVIEW_SCHEDULED' %}bg-warning{% elif application.status == 'ACCEPTED' %}bg-success{% elif application.status == 'REJECTED' %}bg-danger{% else %}bg-secondary{% endif %}">
                                                     {{ application.get_status_display }}
@@ -87,18 +87,18 @@
                         </div>
                     {% else %}
                         <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>No recent applications to display.
+                            <i class="fas fa-info-circle me-2"></i>Нет недавних откликов для отображения.
                         </div>
                     {% endif %}
                 </div>
             </div>
         </div>
         
-        <!-- Upcoming Interviews -->
+        <!-- Предстоящие собеседования -->
         <div class="col-lg-4 mb-4">
             <div class="card shadow">
                 <div class="card-header bg-white">
-                    <h3 class="card-title h5 mb-0">Upcoming Interviews</h3>
+                    <h3 class="card-title h5 mb-0">Предстоящие собеседования</h3>
                 </div>
                 <div class="card-body">
                     {% if upcoming_interviews %}
@@ -107,42 +107,42 @@
                                 <div class="list-group-item list-group-item-action">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">{{ interview.application.user.get_full_name }}</h6>
-                                        <small>{{ interview.date_time|date:"M d, Y" }}</small>
+                                        <small>{{ interview.date_time|date:"d M, Y" }}</small>
                                     </div>
                                     <p class="mb-1">{{ interview.application.vacancy.title }}</p>
                                     <small class="text-muted">
-                                        <i class="fas fa-clock me-1"></i>{{ interview.date_time|date:"g:i A" }}
+                                        <i class="fas fa-clock me-1"></i>{{ interview.date_time|date:"H:i" }}
                                         {% if interview.is_online %}
-                                            <span class="badge bg-info">Online</span>
+                                            <span class="badge bg-info">Онлайн</span>
                                         {% else %}
-                                            <span class="badge bg-secondary">In-person</span>
+                                            <span class="badge bg-secondary">Офлайн</span>
                                         {% endif %}
                                     </small>
                                     <div class="mt-2">
-                                        <a href="{% url 'application_detail' interview.application.id %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                                        <a href="{% url 'application_detail' interview.application.id %}" class="btn btn-sm btn-outline-primary">Подробнее</a>
                                     </div>
                                 </div>
                             {% endfor %}
                         </div>
                     {% else %}
                         <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>No upcoming interviews scheduled.
+                            <i class="fas fa-info-circle me-2"></i>Нет запланированных собеседований.
                         </div>
                     {% endif %}
                 </div>
             </div>
             
-            <!-- Application Statistics -->
+            <!-- Статистика откликов -->
             <div class="card shadow mt-3">
                 <div class="card-header bg-white">
-                    <h3 class="card-title h5 mb-0">Application Statistics</h3>
+                    <h3 class="card-title h5 mb-0">Статистика откликов</h3>
                 </div>
                 <div class="card-body">
                     {% if applications_by_status %}
                         <canvas id="applicationStatusChart"></canvas>
                     {% else %}
                         <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>No application data to display.
+                            <i class="fas fa-info-circle me-2"></i>Нет данных для отображения.
                         </div>
                     {% endif %}
                 </div>
@@ -150,38 +150,38 @@
         </div>
     </div>
     
-    <!-- Quick Actions -->
+    <!-- Быстрые действия -->
     <div class="card shadow mb-4">
         <div class="card-header bg-white">
-            <h3 class="card-title h5 mb-0">Quick Actions</h3>
+            <h3 class="card-title h5 mb-0">Быстрые действия</h3>
         </div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-3 mb-3 mb-md-0">
                     <div class="d-grid">
                         <a href="{% url 'application_list' %}?status=NEW" class="btn btn-outline-primary">
-                            <i class="fas fa-clipboard-check me-2"></i>Review New Applications
+                            <i class="fas fa-clipboard-check me-2"></i>Просмотреть новые отклики
                         </a>
                     </div>
                 </div>
                 <div class="col-md-3 mb-3 mb-md-0">
                     <div class="d-grid">
                         <a href="{% url 'application_list' %}?status=INTERVIEW_SCHEDULED" class="btn btn-outline-warning">
-                            <i class="fas fa-calendar-alt me-2"></i>View Scheduled Interviews
+                            <i class="fas fa-calendar-alt me-2"></i>Запланированные собеседования
                         </a>
                     </div>
                 </div>
                 <div class="col-md-3 mb-3 mb-md-0">
                     <div class="d-grid">
                         <a href="{% url 'vacancy_list' %}" class="btn btn-outline-success">
-                            <i class="fas fa-list me-2"></i>View Active Vacancies
+                            <i class="fas fa-list me-2"></i>Активные вакансии
                         </a>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="d-grid">
                         <a href="{% url 'notifications' %}" class="btn btn-outline-secondary">
-                            <i class="fas fa-bell me-2"></i>Check Notifications
+                            <i class="fas fa-bell me-2"></i>Уведомления
                         </a>
                     </div>
                 </div>
@@ -192,7 +192,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- Chart.js for data visualization -->
+<!-- Chart.js для визуализации данных -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -211,12 +211,12 @@
             ];
             
             const statusColors = [
-                'rgba(13, 110, 253, 0.7)',  // Primary (NEW)
-                'rgba(13, 202, 240, 0.7)',  // Info (REVIEWING)
-                'rgba(255, 193, 7, 0.7)',   // Warning (INTERVIEW)
-                'rgba(25, 135, 84, 0.7)',   // Success (ACCEPTED)
-                'rgba(220, 53, 69, 0.7)',   // Danger (REJECTED)
-                'rgba(108, 117, 125, 0.7)'  // Secondary (OTHER)
+                'rgba(13, 110, 253, 0.7)',  // Новый
+                'rgba(13, 202, 240, 0.7)',  // В обработке
+                'rgba(255, 193, 7, 0.7)',   // Назначено собеседование
+                'rgba(25, 135, 84, 0.7)',   // Принят
+                'rgba(220, 53, 69, 0.7)',   // Отклонён
+                'rgba(108, 117, 125, 0.7)'  // Прочие
             ];
             
             new Chart(statusCtx, {
