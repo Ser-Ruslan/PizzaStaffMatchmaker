@@ -60,8 +60,9 @@ class Resume(models.Model):
     def clean(self):
         # Validate file type and size
         if self.file:
-            file_type = self.file.content_type
-            if file_type not in settings.ALLOWED_RESUME_TYPES:
+            file_name = self.file.name.lower()
+            allowed_extensions = ['.pdf', '.doc', '.docx']
+            if not any(file_name.endswith(ext) for ext in allowed_extensions):
                 raise ValueError("Only PDF and Word documents are allowed.")
             if self.file.size > settings.MAX_RESUME_SIZE:
                 raise ValueError("File size cannot exceed 5MB.")

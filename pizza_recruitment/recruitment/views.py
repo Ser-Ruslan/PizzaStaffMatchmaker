@@ -99,8 +99,11 @@ def edit_profile(request):
 
 # Resume management
 @login_required
-@candidate_required
 def upload_resume(request):
+    # Check if user is a candidate
+    if not hasattr(request.user, 'profile') or request.user.profile.role != UserRole.CANDIDATE:
+        return HttpResponseForbidden("You don't have permission to access this page.")
+        
     if request.method == 'POST':
         form = ResumeUploadForm(request.POST, request.FILES)
         if form.is_valid():
