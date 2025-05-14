@@ -186,15 +186,16 @@
             <h3 class="card-title h5 mb-0">Предстоящие собеседования</h3>
         </div>
         <div class="card-body">
-            {% if interviews_scheduled > 0 %}
-                <div class="alert alert-warning">
-                    <i class="fas fa-calendar-alt me-2"></i>Запланировано <strong>{{ interviews_scheduled }}</strong> собеседований. Проверьте отклики для подробностей.
-                </div>
-            {% else %}
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i>Нет предстоящих собеседований.
-                </div>
-            {% endif %}
+        {% if interviews_scheduled %}
+            
+        <i class="fas fa-calendar-alt me-2"></i>Запланировано <strong>{{ interviews_scheduled }}</strong> собеседований. Проверьте отклики для подробностей.
+        
+    {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>Нет предстоящих собеседований.
+        </div>
+    {% endif %}
+
         </div>
     </div>
 </div>
