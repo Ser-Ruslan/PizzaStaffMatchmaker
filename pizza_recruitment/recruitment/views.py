@@ -442,24 +442,28 @@ def hr_dashboard(request):
 def manage_vacancies(request):
     vacancies = Vacancy.objects.all().order_by('-created_at')
     
-    # Filter by status
+    # Фильтрация
     status_filter = request.GET.get('status', '')
     if status_filter == 'active':
         vacancies = vacancies.filter(is_active=True)
     elif status_filter == 'inactive':
         vacancies = vacancies.filter(is_active=False)
     
-    # Filter by position type
     position_filter = request.GET.get('position_type', '')
     if position_filter:
         vacancies = vacancies.filter(position_type__id=position_filter)
     
-    # Paginate results
+    # Пагинация
     paginator = Paginator(vacancies, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    # Get position types for filter dropdown
+    # Статистика
+    total = Vacancy.objects.count()
+    active = Vacancy.objects.filter(is_active=True).count()
+    inactive = total - active
+    
+    # Типы позиций для фильтра
     position_types = PositionType.objects.all()
     
     context = {
@@ -467,6 +471,10 @@ def manage_vacancies(request):
         'position_types': position_types,
         'selected_status': status_filter,
         'selected_position_type': position_filter,
+        # новые переменные
+        'total_vacancies': total,
+        'active_vacancies': active,
+        'inactive_vacancies': inactive,
     }
     return render(request, 'hr/vacancies_list.html', context)
 

@@ -152,27 +152,27 @@
         </div>
     </div>
     
-    <!-- Быстрая статистика -->
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0">Статистика вакансий</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-6">
-                            <h3 class="text-success">{{ active_vacancies }}</h3>
-                            <p>Активные вакансии</p>
-                        </div>
-                        <div class="col-6">
-                            <h3 class="text-secondary">{{ total_vacancies|subtract:active_vacancies }}</h3>
-                            <p>Неактивные вакансии</p>
-                        </div>
+   <div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Статистика вакансий</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <h3 class="text-success">{{ active_vacancies }}</h3>
+                        <p>Активные вакансии</p>
+                    </div>
+                    <div class="col-6">
+                        <!-- Заменили здесь -->
+                        <h3 class="text-secondary">{{ inactive_vacancies }}</h3>
+                        <p>Неактивные вакансии</p>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
         <div class="col-md-6">
             <div class="card shadow-sm">
                 <div class="card-header bg-light">
