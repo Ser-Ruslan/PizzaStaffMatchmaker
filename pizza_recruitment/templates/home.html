@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% block title %}PizzaJobs - Присоединяйтесь к команде сети пиццерий{% endblock %}
 
 {% block content %}
@@ -107,7 +109,7 @@
                     <div class="card mb-3 border-0 shadow-sm">
                         <div class="row g-0">
                             <div class="col-md-4">
-                                <img src="https://pixabay.com/get/g2a614d3b735eb2e6177a92eb13c75a744913d7c79e48efd5b4c6ffd399494ed1874a75a74a64116e6c39e2a6df40dc5168086a7987ff82324bc801720f09ef6f_1280.jpg" class="img-fluid rounded-start" alt="Пиццмейкер">
+                                <img src="{% static 'img/pizza_maker.jpg' %}" class="img-fluid rounded-start" alt="Пиццмейкер">
                             </div>
                             <div class="col-md-8">
                                 <div class="card-body">
@@ -122,7 +124,7 @@
                     <div class="card mb-3 border-0 shadow-sm">
                         <div class="row g-0">
                             <div class="col-md-4">
-                                <img src="https://pixabay.com/get/g477a49574e1af4a33fc64245a844f866bb67ff607062ac67a657481dbff2ace8d47d831db1fd044576b11781c26c96e7fb4f4d825207c863de13c84228a5a8e7_1280.jpg" class="img-fluid rounded-start" alt="Персонал ресторана">
+                                <img src="{% static 'img/service.jpg' %}" class="img-fluid rounded-start" alt="Персонал ресторана">
                             </div>
                             <div class="col-md-8">
                                 <div class="card-body">
@@ -139,7 +141,7 @@
                     <div class="card mb-3 border-0 shadow-sm">
                         <div class="row g-0">
                             <div class="col-md-4">
-                                <img src="https://pixabay.com/get/g9bc0a12f3834fa8341960a8da3833218f3c728eb6d6eae8fd334c5fe2dd7a03b29276aa31202626aa58d33c8369ac9660d2130eedf1ef8495c18ddfccb3b6569_1280.jpg" class="img-fluid rounded-start" alt="Менеджер ресторана">
+                                <img src="{% static 'img/manager.jpg' %}" class="img-fluid rounded-start" alt="Менеджер ресторана">
                             </div>
                             <div class="col-md-8">
                                 <div class="card-body">
@@ -154,7 +156,7 @@
                     <div class="card mb-3 border-0 shadow-sm">
                         <div class="row g-0">
                             <div class="col-md-4">
-                                <img src="https://pixabay.com/get/g041d86508b633c0a69de2d18123b2a1ed71208845a43bcc26bdbec09901a8a83f21aee4fea24a40e8385cecf6060d6aad236df6bb22181c2d4e857e575ee863f_1280.jpg" class="img-fluid rounded-start" alt="Команда доставки">
+                                <img src="{% static 'img/pizza_delivery.jpg' %}" class="img-fluid rounded-start" alt="Команда доставки">
                             </div>
                             <div class="col-md-8">
                                 <div class="card-body">
