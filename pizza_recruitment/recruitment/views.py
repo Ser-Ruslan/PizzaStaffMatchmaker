@@ -57,7 +57,7 @@ def register(request):
             
             # Log in the user
             login(request, user)
-            messages.success(request, 'Account created successfully! Please complete your profile.')
+            messages.success(request, 'Учетная запись успешно создана! Пожалуйста, заполните свой профиль.')
             return redirect('edit_profile')
     else:
         form = UserRegisterForm()
@@ -90,7 +90,7 @@ def edit_profile(request):
         form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Profile updated successfully.')
+            messages.success(request, 'Профиль успешно обновлен.')
             return redirect('view_profile')
     else:
         form = UserProfileForm(instance=user_profile)
@@ -113,7 +113,7 @@ def upload_resume(request):
             try:
                 resume.clean()  # Run validation
                 resume.save()
-                messages.success(request, 'Resume uploaded successfully.')
+                messages.success(request, 'Резюме успешно загружено.')
                 return redirect('view_profile')
             except ValueError as e:
                 messages.error(request, str(e))
@@ -132,7 +132,7 @@ def delete_resume(request, resume_id):
     if request.method == 'POST':
         resume.is_active = False
         resume.save()
-        messages.success(request, 'Resume deleted successfully.')
+        messages.success(request, 'Резюме успешно удалено.')
         return redirect('view_profile')
     
     return render(request, 'profile/delete_resume.html', {'resume': resume})
@@ -203,13 +203,13 @@ def apply_for_vacancy(request, vacancy_id):
     
     # Check if user has already applied
     if Application.objects.filter(vacancy=vacancy, user=request.user).exists():
-        messages.warning(request, 'You have already applied for this position.')
+        messages.warning(request, 'Вы уже подали заявку на эту должность.')
         return redirect('vacancy_detail', vacancy_id=vacancy_id)
     
     # Get user's active resumes
     resumes = Resume.objects.filter(user=request.user, is_active=True)
     if not resumes.exists():
-        messages.warning(request, 'Please upload a resume before applying.')
+        messages.warning(request, 'Пожалуйста загрузите резюме.')
         return redirect('upload_resume')
     
     if request.method == 'POST':
@@ -225,11 +225,11 @@ def apply_for_vacancy(request, vacancy_id):
                 if restaurant.manager:
                     Notification.objects.create(
                         user=restaurant.manager,
-                        title=f"New application for {vacancy.title}",
-                        message=f"A new application from {request.user.get_full_name()} has been received for {vacancy.title}."
+                        title=f"Новая заявка на {vacancy.title}",
+                        message=f"Поступила новая заявка от {request.user.get_full_name()} на вакансии {vacancy.title}."
                     )
             
-            messages.success(request, 'Your application has been submitted successfully.')
+            messages.success(request, 'Ваша заявка успешно отправлена.')
             return redirect('vacancy_detail', vacancy_id=vacancy_id)
     else:
         form = ApplicationForm(user=request.user)
@@ -337,11 +337,11 @@ def application_detail(request, application_id):
                 if old_status != application.status:
                     Notification.objects.create(
                         user=application.user,
-                        title=f"Application status updated",
-                        message=f"Your application for {application.vacancy.title} has been updated to: {application.get_status_display()}"
+                        title=f"Обновлён статус заявки",
+                        message=f"Статус вашей заявки на {application.vacancy.title} изменился на: {application.get_status_display()}"
                     )
                 
-                messages.success(request, 'Application status updated successfully.')
+                messages.success(request, 'Статус заявки обновлён.')
                 return redirect('application_detail', application_id=application.id)
         
         # Process comment form submission
@@ -352,7 +352,7 @@ def application_detail(request, application_id):
                 comment.application = application
                 comment.author = request.user
                 comment.save()
-                messages.success(request, 'Comment added successfully.')
+                messages.success(request, 'Комментарий успешно добавлен.')
                 return redirect('application_detail', application_id=application.id)
     
     # Only HR can schedule interviews
@@ -375,18 +375,18 @@ def application_detail(request, application_id):
                 # Create notifications
                 Notification.objects.create(
                     user=application.user,
-                    title=f"Interview scheduled",
-                    message=f"An interview has been scheduled for your application to {application.vacancy.title} on {interview.date_time.strftime('%Y-%m-%d at %H:%M')}."
+                    title=f"Собеседование назначено",
+                    message=f"Для вашей заявки на {application.vacancy.title} назначено собеседование на {interview.date_time.strftime('%Y-%m-%d at %H:%M')}."
                 )
                 
                 if interview.interviewer:
                     Notification.objects.create(
                         user=interview.interviewer,
-                        title=f"You have been assigned an interview",
-                        message=f"You have been assigned to interview {application.user.get_full_name()} for {application.vacancy.title} on {interview.date_time.strftime('%Y-%m-%d at %H:%M')}."
+                        title=f"Вас назначили интервьюером",
+                        message=f"Вас назначили проводить собеседование с {application.user.get_full_name()} по вакансии {application.vacancy.title} on {interview.date_time.strftime('%Y-%m-%d at %H:%M')}."
                     )
                 
-                messages.success(request, 'Interview scheduled successfully.')
+                messages.success(request, 'Собеседование успешно назначено.')
                 return redirect('application_detail', application_id=application.id)
     
     context = {
@@ -491,7 +491,7 @@ def create_vacancy(request):
             # Save many-to-many relationships
             form.save_m2m()
             
-            messages.success(request, 'Vacancy created successfully.')
+            messages.success(request, 'Вакансия создана успешно.')
             return redirect('manage_vacancies')
     else:
         form = VacancyForm()
@@ -511,7 +511,7 @@ def edit_vacancy(request, vacancy_id):
         form = VacancyForm(request.POST, instance=vacancy)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Vacancy updated successfully.')
+            messages.success(request, 'Вакансия обновлена успешно.')
             return redirect('manage_vacancies')
     else:
         form = VacancyForm(instance=vacancy)
@@ -527,15 +527,22 @@ def edit_vacancy(request, vacancy_id):
 @hr_required
 def toggle_vacancy_status(request, vacancy_id):
     vacancy = get_object_or_404(Vacancy, id=vacancy_id)
-    
     if request.method == 'POST':
         vacancy.is_active = not vacancy.is_active
         vacancy.save()
         
-        status_text = "activated" if vacancy.is_active else "deactivated"
-        messages.success(request, f'Vacancy {status_text} successfully.')
-    
+        # Уведомление всем, кто подавал на эту вакансию
+        status_text = "активирована" if vacancy.is_active else "деактивирована"
+        for app in vacancy.applications.all():
+            Notification.objects.create(
+                user=app.user,
+                title=f"Вакансия «{vacancy.title}» {status_text}",
+                message=f"Вакансия, на которую вы подавали заявку, была {status_text}."
+            )
+        
+        messages.success(request, f'Вакансия успешно {status_text}.')
     return redirect('manage_vacancies')
+
 
 # Restaurant Manager Dashboard views
 @login_required
@@ -572,35 +579,33 @@ def manager_dashboard(request):
 # Notification views
 @login_required
 def notifications(request):
-    notifications = Notification.objects.filter(
-        user=request.user
-    ).order_by('-created_at')
-    
-    # Mark all as read if requested
-    if request.GET.get('mark_all_read'):
-        notifications.update(read=True)
-        return redirect('notifications')
-    
-    # Mark single notification as read
-    notification_id = request.GET.get('mark_read')
-    if notification_id:
-        try:
-            notification = notifications.get(id=notification_id)
-            notification.read = True
-            notification.save()
-        except Notification.DoesNotExist:
-            pass
-        
-        return redirect('notifications')
-    
-    # Paginate results
-    paginator = Paginator(notifications, 20)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    
+    qs = Notification.objects.filter(user=request.user).order_by('-created_at')
+
+    if request.method == 'POST':
+        if 'delete' in request.POST:
+            Notification.objects.filter(id=request.POST['delete'], user=request.user).delete()
+            messages.success(request, 'Уведомление удалено.')
+            return redirect('notifications')
+
+    if request.method == 'POST':
+        # Отметить все
+        if 'mark_all_read' in request.POST:
+            qs.update(read=True)
+            messages.success(request, 'Все уведомления отмечены как прочитанные.')
+            return redirect('notifications')
+        # Отметить одно
+        if 'mark_read' in request.POST:
+            nid = request.POST.get('mark_read')
+            qs.filter(id=nid).update(read=True)
+            messages.success(request, 'Уведомление отмечено как прочитанное.')
+            return redirect('notifications')
+
+    paginator = Paginator(qs, 20)
+    page_obj = paginator.get_page(request.GET.get('page'))
+
     context = {
         'page_obj': page_obj,
-        'unread_count': notifications.filter(read=False).count(),
+        'unread_count': qs.filter(read=False).count(),
     }
     return render(request, 'notifications/list.html', context)
 
