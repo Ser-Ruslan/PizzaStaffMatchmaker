@@ -1,13 +1,13 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .models import Application, Notification, Interview, UserRole, Restaurant
+from .models import Application, ApplicationComment, Notification, Interview, UserRole, Restaurant
+from django.db import transaction
 
 @receiver(post_save, sender=Application)
 def application_notifications(sender, instance, created, **kwargs):
-    # новая заявка
     if created:
         vacancy = instance.vacancy
-        # уведомляем HR
+        # Уведомляем HR менеджеров
         from django.contrib.auth import get_user_model
         User = get_user_model()
         hr_users = User.objects.filter(profile__role=UserRole.HR_MANAGER)
@@ -17,7 +17,8 @@ def application_notifications(sender, instance, created, **kwargs):
                 title=f"Новая заявка на «{vacancy.title}»",
                 message=f"{instance.user.get_full_name()} подал(а) заявку на «{vacancy.title}»."
             )
-        # уведомляем менеджеров нужных ресторанов
+        
+        # Уведомляем менеджеров ресторанов
         for restaurant in vacancy.restaurants.all():
             if restaurant.manager:
                 Notification.objects.create(
@@ -25,16 +26,7 @@ def application_notifications(sender, instance, created, **kwargs):
                     title=f"Новая заявка на {vacancy.title}",
                     message=f"Поступила заявка от {instance.user.get_full_name()} на «{vacancy.title}».",
                 )
-    else:
-        # изменение статуса
-        old = Application.objects.get(pk=instance.pk)
-        if old.status != instance.status:
-            Notification.objects.create(
-                user=instance.user,
-                title="Обновлён статус заявки",
-                message=f"Вашу заявку на «{instance.vacancy.title}» перевели в «{instance.get_status_display()}».",
-            )
-
+    
 @receiver(post_save, sender=Interview)
 def interview_notifications(sender, instance, created, **kwargs):
     if created:
@@ -44,7 +36,7 @@ def interview_notifications(sender, instance, created, **kwargs):
             title="Собеседование назначено",
             message=(
                 f"Для вашей заявки «{instance.application.vacancy.title}» "
-                f"назначено собеседование {instance.date_time.strftime('%d.%m.%Y %H:%M')}."
+                f"назначено собеседование {instance.date_time.strftime('%d.%m.%Y в %H:%M')}."
             )
         )
         if instance.interviewer:
@@ -54,6 +46,27 @@ def interview_notifications(sender, instance, created, **kwargs):
                 message=(
                     f"Вас назначили интервьюером для {user.get_full_name()} "
                     f"по вакансии «{instance.application.vacancy.title}» "
-                    f"{instance.date_time.strftime('%d.%m.%Y %H:%M')}."
+                    f"{instance.date_time.strftime('%d.%m.%Y в %H:%M')}."
                 )
             )
+
+@receiver(post_save, sender=ApplicationComment)
+def comment_notifications(sender, instance, created, **kwargs):
+    if created:
+        # Получаем роль автора комментария
+        author_role = instance.author.profile.role if hasattr(instance.author, 'profile') else None
+        
+        # Если комментарий от менеджера ресторана, уведомляем HR-менеджеров
+        if author_role == UserRole.RESTAURANT_MANAGER:
+            application = instance.application
+            
+            from django.contrib.auth import get_user_model
+            User = get_user_model()
+            hr_users = User.objects.filter(profile__role=UserRole.HR_MANAGER)
+            
+            for hr in hr_users:
+                Notification.objects.create(
+                    user=hr,
+                    title=f"Новый комментарий к заявке №{application.id}",
+                    message=f"Менеджер ресторана {instance.author.get_full_name()} оставил комментарий к заявке на вакансию «{application.vacancy.title}» от {application.user.get_full_name()}."
+                )

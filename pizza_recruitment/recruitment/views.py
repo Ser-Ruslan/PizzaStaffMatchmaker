@@ -4,7 +4,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from django.db.models import Q, Count
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, JsonResponse
 from django.core.paginator import Paginator
 from django.utils import timezone
 from django.urls import reverse
@@ -328,17 +328,19 @@ def application_detail(request, application_id):
         
         # Process status form submission
         if request.method == 'POST' and 'update_status' in request.POST:
+            # Сохраняем старый статус ДО создания формы и обновления
+            old_status = application.status
+            
             status_form = ApplicationStatusForm(request.POST, instance=application)
             if status_form.is_valid():
-                old_status = application.status
-                application = status_form.save()
+                updated_application = status_form.save()
                 
-                # Create notification for candidate
-                if old_status != application.status:
+                # Create notification for candidate если статус изменился
+                if old_status != updated_application.status:
                     Notification.objects.create(
-                        user=application.user,
-                        title=f"Обновлён статус заявки",
-                        message=f"Статус вашей заявки на {application.vacancy.title} изменился на: {application.get_status_display()}"
+                        user=updated_application.user,
+                        title="Обновлён статус заявки",
+                        message=f"Статус вашей заявки на {updated_application.vacancy.title} изменился на: {updated_application.get_status_display()}"
                     )
                 
                 messages.success(request, 'Статус заявки обновлён.')
@@ -351,7 +353,8 @@ def application_detail(request, application_id):
                 comment = comment_form.save(commit=False)
                 comment.application = application
                 comment.author = request.user
-                comment.save()
+                comment.save()  # Сигнал post_save срабатывает здесь и создает уведомления
+        
                 messages.success(request, 'Комментарий успешно добавлен.')
                 return redirect('application_detail', application_id=application.id)
     
@@ -369,21 +372,22 @@ def application_detail(request, application_id):
                 interview.save()
                 
                 # Update application status
+                old_status = application.status
                 application.status = ApplicationStatus.INTERVIEW_SCHEDULED
                 application.save()
                 
                 # Create notifications
                 Notification.objects.create(
                     user=application.user,
-                    title=f"Собеседование назначено",
-                    message=f"Для вашей заявки на {application.vacancy.title} назначено собеседование на {interview.date_time.strftime('%Y-%m-%d at %H:%M')}."
+                    title="Собеседование назначено",
+                    message=f"Для вашей заявки на {application.vacancy.title} назначено собеседование {interview.date_time.strftime('%d.%m.%Y в %H:%M')}."
                 )
                 
                 if interview.interviewer:
                     Notification.objects.create(
                         user=interview.interviewer,
-                        title=f"Вас назначили интервьюером",
-                        message=f"Вас назначили проводить собеседование с {application.user.get_full_name()} по вакансии {application.vacancy.title} on {interview.date_time.strftime('%Y-%m-%d at %H:%M')}."
+                        title="Вас назначили интервьюером",
+                        message=f"Вас назначили проводить собеседование с {application.user.get_full_name()} по вакансии {application.vacancy.title} {interview.date_time.strftime('%d.%m.%Y в %H:%M')}."
                     )
                 
                 messages.success(request, 'Собеседование успешно назначено.')
@@ -586,18 +590,18 @@ def notifications(request):
             Notification.objects.filter(id=request.POST['delete'], user=request.user).delete()
             messages.success(request, 'Уведомление удалено.')
             return redirect('notifications')
-
-    if request.method == 'POST':
-        # Отметить все
-        if 'mark_all_read' in request.POST:
-            qs.update(read=True)
+        elif 'mark_all_read' in request.POST:
+            qs.filter(read=False).update(read=True)
             messages.success(request, 'Все уведомления отмечены как прочитанные.')
             return redirect('notifications')
-        # Отметить одно
-        if 'mark_read' in request.POST:
-            nid = request.POST.get('mark_read')
-            qs.filter(id=nid).update(read=True)
+        elif 'mark_read' in request.POST:
+            notification_id = request.POST.get('mark_read')
+            notification = get_object_or_404(Notification, id=notification_id, user=request.user)
+            notification.read = True
+            notification.save()
             messages.success(request, 'Уведомление отмечено как прочитанное.')
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'status': 'success'})
             return redirect('notifications')
 
     paginator = Paginator(qs, 20)
