@@ -195,55 +195,56 @@
 <!-- Chart.js для визуализации данных -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        {% if applications_by_status %}
-            const statusCtx = document.getElementById('applicationStatusChart').getContext('2d');
-            const statusLabels = [
-                {% for item in applications_by_status %}
-                    "{{ item.status }}",
-                {% endfor %}
-            ];
-            
-            const statusData = [
-                {% for item in applications_by_status %}
-                    {{ item.count }},
-                {% endfor %}
-            ];
-            
-            const statusColors = [
-                'rgba(13, 110, 253, 0.7)',  // Новый
-                'rgba(13, 202, 240, 0.7)',  // В обработке
-                'rgba(255, 193, 7, 0.7)',   // Назначено собеседование
-                'rgba(25, 135, 84, 0.7)',   // Принят
-                'rgba(220, 53, 69, 0.7)',   // Отклонён
-                'rgba(108, 117, 125, 0.7)'  // Прочие
-            ];
-            
-            new Chart(statusCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: statusLabels,
-                    datasets: [{
-                        data: statusData,
-                        backgroundColor: statusColors,
-                        borderColor: statusColors.map(color => color.replace('0.7', '1')),
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: {
-                                boxWidth: 15
-                            }
-                        }
-                    }
-                }
-            });
-        {% endif %}
+document.addEventListener('DOMContentLoaded', function() {
+    {% if applications_by_status %}
+    // 1. Конфигурация статусов: код -> {label, color}
+    const statusConfig = {
+        'NEW':                { label: 'Новые',                   color: 'rgba(13, 110, 253, 0.7)' },  // bg-primary
+        'REVIEWING':          { label: 'На рассмотрении',          color: 'rgba(13, 202, 240, 0.7)' },  // bg-info
+        'INTERVIEW_SCHEDULED':{ label: 'Собеседование назначено',   color: 'rgba(255, 193, 7, 0.7)' },   // bg-warning
+        'ACCEPTED':           { label: 'Приняты',                  color: 'rgba(25, 135, 84, 0.7)' },   // bg-success
+        'REJECTED':           { label: 'Отклонены',                color: 'rgba(220, 53, 69, 0.7)' }    // bg-danger
+    };
+
+    // 2. Собираем данные для диаграммы
+    const labels = [];
+    const data   = [];
+    const colors = [];
+
+    {% for item in applications_by_status %}
+        (function() {
+            const code  = "{{ item.status }}";
+            const count = {{ item.count }};
+            const cfg   = statusConfig[code] || { label: code, color: 'rgba(108, 117, 125, 0.7)' };
+            labels.push(cfg.label);
+            data.push(count);
+            colors.push(cfg.color);
+        })();
+    {% endfor %}
+
+    // 3. Рендерим диаграмму
+    const ctx = document.getElementById('applicationStatusChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: colors,
+                borderColor: colors.map(c => c.replace('0.7', '1')),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { position: 'right', labels: { boxWidth: 15 } }
+            }
+        }
     });
+    {% endif %}
+});
 </script>
 {% endblock %}
+

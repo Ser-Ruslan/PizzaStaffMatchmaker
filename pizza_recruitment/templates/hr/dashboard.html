@@ -205,105 +205,90 @@
 <!-- Chart.js для визуализации данных -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Диаграмма откликов по статусу
-        {% if applications_by_status %}
-            const statusCtx = document.getElementById('applicationStatusChart').getContext('2d');
-            const statusLabels = [
-                {% for item in applications_by_status %}
-                    "{{ item.status }}",
-                {% endfor %}
-            ];
-            
-            const statusData = [
-                {% for item in applications_by_status %}
-                    {{ item.count }},
-                {% endfor %}
-            ];
-            
-            const statusColors = [
-                'rgba(13, 110, 253, 0.7)',  // Новый
-                'rgba(13, 202, 240, 0.7)',  // В обработке
-                'rgba(255, 193, 7, 0.7)',   // Назначено собеседование
-                'rgba(25, 135, 84, 0.7)',   // Принят
-                'rgba(220, 53, 69, 0.7)',   // Отклонён
-                'rgba(108, 117, 125, 0.7)'  // Прочие
-            ];
-            
-            new Chart(statusCtx, {
-                type: 'pie',
-                data: {
-                    labels: statusLabels,
-                    datasets: [{
-                        data: statusData,
-                        backgroundColor: statusColors,
-                        borderColor: statusColors.map(color => color.replace('0.7', '1')),
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: {
-                                boxWidth: 15
-                            }
-                        }
-                    }
-                }
-            });
-        {% endif %}
-        
-        // Диаграмма вакансий по статусу
-        {% if vacancies_by_status %}
-            const vacancyCtx = document.getElementById('vacancyStatusChart').getContext('2d');
-            
-            const vacancyData = {
-                labels: ['Активные', 'Неактивные'],
-                datasets: [{
-                    data: [
-                        {% for item in vacancies_by_status %}
-                            {% if item.is_active %}
-                                {{ item.count }},
-                            {% endif %}
-                        {% endfor %}
-                        {% for item in vacancies_by_status %}
-                            {% if not item.is_active %}
-                                {{ item.count }},
-                            {% endif %}
-                        {% endfor %}
-                    ],
-                    backgroundColor: [
-                        'rgba(25, 135, 84, 0.7)',   // Успешно (Активные)
-                        'rgba(108, 117, 125, 0.7)'  // Вторичные (Неактивные)
-                    ],
-                    borderColor: [
-                        'rgba(25, 135, 84, 1)',
-                        'rgba(108, 117, 125, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            };
-            
-            new Chart(vacancyCtx, {
-                type: 'doughnut',
-                data: vacancyData,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: {
-                                boxWidth: 15
-                            }
-                        }
-                    }
-                }
-            });
-        {% endif %}
+document.addEventListener('DOMContentLoaded', function() {
+    // Общая конфигурация статусов: код -> {label, bootstrapClass, цвет}
+    const statusConfig = {
+        'NEW':                 { label: 'Новые',                   badge: 'bg-primary',      color: 'rgba(13, 110, 253, 0.7)' },
+        'REVIEWING':           { label: 'На рассмотрении',          badge: 'bg-info',         color: 'rgba(13, 202, 240, 0.7)' },
+        'INTERVIEW_SCHEDULED': { label: 'Собеседование назначено',   badge: 'bg-warning text-dark', color: 'rgba(255, 193, 7, 0.7)' },
+        'ACCEPTED':            { label: 'Приняты',                  badge: 'bg-success',      color: 'rgba(25, 135, 84, 0.7)' },
+        'REJECTED':            { label: 'Отклонены',                badge: 'bg-danger',       color: 'rgba(220, 53, 69, 0.7)' }
+    };
+
+    // --- Диаграмма: Отклики по статусу ---
+    {% if applications_by_status %}
+    // Собираем динамические массивы
+    const statusLabels = [], statusData = [], statusColors = [];
+
+    {% for item in applications_by_status %}
+        (function(){
+            const code  = "{{ item.status }}";
+            const count = {{ item.count }};
+            const cfg   = statusConfig[code] || { label: code, badge: 'bg-secondary', color: 'rgba(108, 117, 125, 0.7)' };
+            statusLabels.push(cfg.label);
+            statusData.push(count);
+            statusColors.push(cfg.color);
+        })();
+    {% endfor %}
+
+    const ctx = document.getElementById('applicationStatusChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: statusLabels,
+            datasets: [{
+                data: statusData,
+                backgroundColor: statusColors,
+                borderColor: statusColors.map(c => c.replace('0.7','1')),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'right', labels:{ boxWidth:15 } }
+            }
+        }
     });
+    {% endif %}
+
+    // --- Диаграмма: Вакансии по статусу (без изменений) ---
+    {% if vacancies_by_status %}
+    const vacancyCtx = document.getElementById('vacancyStatusChart').getContext('2d');
+    const vacancyData = {
+        labels: ['Активные','Неактивные'],
+        datasets: [{
+            data: [
+                {% for item in vacancies_by_status %}
+                    {% if item.is_active %}{{ item.count }},{% endif %}
+                {% endfor %}
+                {% for item in vacancies_by_status %}
+                    {% if not item.is_active %}{{ item.count }},{% endif %}
+                {% endfor %}
+            ],
+            backgroundColor: [
+                'rgba(25, 135, 84, 0.7)',   // Активные — зелёный (bg-success)
+                'rgba(220, 53, 69, 0.7)'    // Неактивные — красный (bg-danger)
+            ],
+            borderColor: [
+                'rgba(25, 135, 84, 1)',
+                'rgba(220, 53, 69, 1)'
+            ],
+            borderWidth: 1
+        }]
+    };
+    new Chart(vacancyCtx, {
+        type: 'doughnut',
+        data: vacancyData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend:{ position:'right', labels:{ boxWidth:15 } } }
+        }
+    });
+    {% endif %}
+});
 </script>
 {% endblock %}
+

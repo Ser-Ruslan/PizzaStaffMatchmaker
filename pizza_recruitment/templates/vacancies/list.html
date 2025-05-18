@@ -32,9 +32,9 @@
                     </select>
                 </div>
                 <div class="col-md-4">
-                    <label for="restaurant" class="form-label">Ресторан</label>
+                    <label for="restaurant" class="form-label">Пиццерия</label>
                     <select class="form-select" id="restaurant" name="restaurant">
-                        <option value="">Все рестораны</option>
+                        <option value="">Все пиццерии</option>
                         {% for restaurant in restaurants %}
                             <option value="{{ restaurant.id }}" {% if selected_restaurant == restaurant.id|stringformat:"i" %}selected{% endif %}>{{ restaurant.name }}</option>
                         {% endfor %}
@@ -64,6 +64,14 @@
                                 {% for restaurant in vacancy.restaurants.all %}
                                     <span class="badge bg-secondary me-1 mb-1">{{ restaurant.city }}</span>
                                 {% endfor %}
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">
+                                    Откликнулись: {{ vacancy.total_applications }} чел.
+                                    {% if vacancy.total_applications > 0 %}
+                                        | Принято: {{ vacancy.acceptance_rate }}%
+                                    {% endif %}
+                                </small>
                             </div>
                             {% if vacancy.salary_min or vacancy.salary_max %}
                                 <p class="mt-2">

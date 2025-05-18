@@ -55,7 +55,7 @@
                             <tr>
                                 <th>Название</th>
                                 <th>Тип позиции</th>
-                                <th>Рестораны</th>
+                                <th>Пиццерии</th>
                                 <th>Создано</th>
                                 <th>Статус</th>
                                 <th>Отклики</th>
@@ -71,7 +71,7 @@
                                         {% if vacancy.restaurants.count == 1 %}
                                             {{ vacancy.restaurants.first.name }}
                                         {% else %}
-                                            {{ vacancy.restaurants.count }} ресторанов
+                                            {{ vacancy.restaurants.count }} пиццерий
                                         {% endif %}
                                     </td>
                                     <td>{{ vacancy.created_at|date:"d M, Y" }}</td>

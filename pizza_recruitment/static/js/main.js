@@ -15,14 +15,14 @@ document.addEventListener('DOMContentLoaded', function() {
         return new bootstrap.Popover(popoverTriggerEl);
     });
 
-    // Auto-dismiss alerts after 5 seconds
+    // Auto-dismiss alerts 
     setTimeout(function() {
         const alerts = document.querySelectorAll('.alert:not(.alert-permanent)');
         alerts.forEach(function(alert) {
             const bsAlert = new bootstrap.Alert(alert);
             bsAlert.close();
         });
-    }, 5000);
+    }, 180000);
 
     // Handle online/in-person interview form toggle
     const isOnlineCheckbox = document.getElementById('id_is_online');

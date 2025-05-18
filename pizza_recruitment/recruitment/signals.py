@@ -53,20 +53,30 @@ def interview_notifications(sender, instance, created, **kwargs):
 @receiver(post_save, sender=ApplicationComment)
 def comment_notifications(sender, instance, created, **kwargs):
     if created:
-        # Получаем роль автора комментария
-        author_role = instance.author.profile.role if hasattr(instance.author, 'profile') else None
-        
+        application = instance.application
+        author = instance.author
+        author_role = author.profile.role if hasattr(author, 'profile') else None
+
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+
         # Если комментарий от менеджера ресторана, уведомляем HR-менеджеров
         if author_role == UserRole.RESTAURANT_MANAGER:
-            application = instance.application
-            
-            from django.contrib.auth import get_user_model
-            User = get_user_model()
             hr_users = User.objects.filter(profile__role=UserRole.HR_MANAGER)
-            
             for hr in hr_users:
                 Notification.objects.create(
                     user=hr,
                     title=f"Новый комментарий к заявке №{application.id}",
-                    message=f"Менеджер ресторана {instance.author.get_full_name()} оставил комментарий к заявке на вакансию «{application.vacancy.title}» от {application.user.get_full_name()}."
+                    message=f"Менеджер ресторана {author.get_full_name()} оставил комментарий к заявке на вакансию «{application.vacancy.title}» от {application.user.get_full_name()}."
                 )
+
+        # Если комментарий от HR, уведомляем менеджеров ресторана
+        elif author_role == UserRole.HR_MANAGER:
+            for restaurant in application.vacancy.restaurants.all():
+                if restaurant.manager:
+                    Notification.objects.create(
+                        user=restaurant.manager,
+                        title=f"Комментарий к заявке №{application.id}",
+                        message=f"HR-менеджер {author.get_full_name()} оставил комментарий к заявке на вакансию «{application.vacancy.title}» от {application.user.get_full_name()}."
+                    )
+        

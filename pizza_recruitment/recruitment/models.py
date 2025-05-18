@@ -6,19 +6,19 @@ import os
 
 # Constants for user roles
 class UserRole(models.TextChoices):
-    CANDIDATE = 'CANDIDATE', 'Candidate'
-    HR_MANAGER = 'HR_MANAGER', 'HR Manager'
-    RESTAURANT_MANAGER = 'RESTAURANT_MANAGER', 'Restaurant Manager'
-    ADMIN = 'ADMIN', 'Administrator'
+    CANDIDATE = 'CANDIDATE', 'Кандидат'
+    HR_MANAGER = 'HR_MANAGER', 'HR Менеджер'
+    RESTAURANT_MANAGER = 'RESTAURANT_MANAGER', 'Менеджер пицерий'
+    ADMIN = 'ADMIN', 'Администратор'
 
 # Constants for application status
 class ApplicationStatus(models.TextChoices):
-    NEW = 'NEW', 'New'
-    REVIEWING = 'REVIEWING', 'Reviewing'
-    INTERVIEW_SCHEDULED = 'INTERVIEW_SCHEDULED', 'Interview Scheduled'
-    REJECTED = 'REJECTED', 'Rejected'
-    ACCEPTED = 'ACCEPTED', 'Accepted'
-    ON_HOLD = 'ON_HOLD', 'On Hold'
+    NEW = 'NEW', 'Новая'
+    REVIEWING = 'REVIEWING', 'На рассмотрении'
+    INTERVIEW_SCHEDULED = 'INTERVIEW_SCHEDULED', 'Запланированное собеседование'
+    REJECTED = 'REJECTED', 'Отклонено'
+    ACCEPTED = 'ACCEPTED', 'Принято'
+    ON_HOLD = 'ON_HOLD', 'На паузе'
 
 # User Profile Model
 class UserProfile(models.Model):

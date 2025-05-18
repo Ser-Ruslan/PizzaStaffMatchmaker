@@ -3,7 +3,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
-from django.db.models import Q, Count
+from django.db.models import Count, Q, F, Case, When, Value, FloatField
+from django.db.models.functions import Round
+from .models import Vacancy, ApplicationStatus
 from django.http import HttpResponseForbidden, JsonResponse
 from django.core.paginator import Paginator
 from django.utils import timezone
@@ -156,6 +158,26 @@ def vacancy_list(request):
     
     if restaurant_id:
         vacancies = vacancies.filter(restaurants__id=restaurant_id)
+
+    vacancies = vacancies.annotate(
+        total_applications=Count('applications', distinct=True),
+        accepted_applications=Count(
+            'applications',
+            filter=Q(applications__status=ApplicationStatus.ACCEPTED),
+            distinct=True
+        ),
+    ).annotate(
+        # Вычисляем (accepted_applications * 100 / total_applications) и округляем до 0 знаков
+        acceptance_rate=Round(
+           Case(
+               When(total_applications__gt=0,
+                     then=F('accepted_applications') * Value(100.0) / F('total_applications')),
+                default=Value(0),
+                output_field=FloatField()
+            ),
+            0
+        )
+    )
     
     # Get unique cities and position types for filter dropdowns
     cities = Restaurant.objects.values_list('city', flat=True).distinct()
@@ -188,10 +210,23 @@ def vacancy_detail(request, vacancy_id):
             vacancy=vacancy, 
             user=request.user
         ).exists()
+
+    total_applications = Application.objects.filter(vacancy=vacancy).count()
+    accepted_applications = Application.objects.filter(
+        vacancy=vacancy,
+        status=ApplicationStatus.ACCEPTED
+    ).count()
+
+    acceptance_rate = (
+        (accepted_applications * 100) // total_applications
+        if total_applications > 0 else 0
+    )
     
     context = {
         'vacancy': vacancy,
         'user_applied': user_applied,
+        'total_applications': total_applications,
+        'acceptance_rate':     acceptance_rate,
     }
     return render(request, 'vacancies/detail.html', context)
 
