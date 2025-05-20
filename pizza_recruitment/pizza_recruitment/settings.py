@@ -129,3 +129,5 @@ MAX_RESUME_SIZE = 5 * 1024 * 1024  # 5MB
 
 # CSRF Settings
 CSRF_TRUSTED_ORIGINS = ['https://*.replit.app', 'https://*.replit.dev', 'https://*.repl.co']
+
+
